@@ -1,12 +1,9 @@
-#include <sys/stat.h>
-#include <stdlib.h>
-
-#include <fs_interface.h>
-
 #include "vmwfs.h"
+
 
 #define TO_UNIX_TIME(x) ((x) / 10000000LL - 11644473600LL)
 #define TO_VMW_TIME(x) ((x) + 11644473600LL) * 10000000LL
+
 
 status_t
 vmwfs_lookup(fs_volume* volume, fs_vnode* dir, const char* name, ino_t* _id)
@@ -23,7 +20,7 @@ vmwfs_lookup(fs_volume* volume, fs_vnode* dir, const char* name, ino_t* _id)
 		return B_BUFFER_OVERFLOW;
 	}
 
-	status_t ret = shared_folders->GetAttributes(path_buffer);
+	status_t ret = gSharedFolders->GetAttributes(path_buffer);
 	free(path_buffer);
 	if (ret != B_OK)
 		return ret;
@@ -37,6 +34,7 @@ vmwfs_lookup(fs_volume* volume, fs_vnode* dir, const char* name, ino_t* _id)
 	return get_vnode(volume, node->GetInode(), NULL);
 }
 
+
 status_t
 vmwfs_get_vnode_name(fs_volume* volume, fs_vnode* vnode, char* buffer, size_t bufferSize)
 {
@@ -47,11 +45,13 @@ vmwfs_get_vnode_name(fs_volume* volume, fs_vnode* vnode, char* buffer, size_t bu
 	return B_OK;
 }
 
+
 status_t
 vmwfs_put_vnode(fs_volume* volume, fs_vnode* vnode, bool reenter)
 {
 	return B_OK;
 }
+
 
 status_t
 vmwfs_remove_vnode(fs_volume* volume, fs_vnode* vnode, bool reenter)
@@ -71,6 +71,7 @@ vmwfs_remove_vnode(fs_volume* volume, fs_vnode* vnode, bool reenter)
 	return B_OK;
 }
 
+
 status_t
 vmwfs_unlink(fs_volume* volume, fs_vnode* dir, const char* name)
 {
@@ -86,14 +87,16 @@ vmwfs_unlink(fs_volume* volume, fs_vnode* dir, const char* name)
 		return B_BUFFER_OVERFLOW;
 	}
 
-	status_t ret = shared_folders->DeleteFile(path_buffer);
+	status_t ret = gSharedFolders->DeleteFile(path_buffer);
 	free(path_buffer);
 
 	return ret;
 }
 
+
 status_t
-vmwfs_rename(fs_volume* volume, fs_vnode* fromDir, const char* fromName, fs_vnode* toDir, const char* toName)
+vmwfs_rename(fs_volume* volume, fs_vnode* fromDir, const char* fromName, fs_vnode* toDir,
+	const char* toName)
 {
 	VMWNode* src_dir = (VMWNode*)fromDir->private_node;
 	VMWNode* dst_dir = (VMWNode*)toDir->private_node;
@@ -121,12 +124,13 @@ vmwfs_rename(fs_volume* volume, fs_vnode* fromDir, const char* fromName, fs_vnod
 		return B_BUFFER_OVERFLOW;
 	}
 
-	status_t ret = shared_folders->Move(path_buffer, path_buffer_dest);
+	status_t ret = gSharedFolders->Move(path_buffer, path_buffer_dest);
 	free(path_buffer);
 	free(path_buffer_dest);
 
 	return ret;
 }
+
 
 status_t
 vmwfs_access(fs_volume* volume, fs_vnode* vnode, int mode)
@@ -144,7 +148,7 @@ vmwfs_access(fs_volume* volume, fs_vnode* vnode, int mode)
 	}
 
 	vmw_attributes attributes;
-	status_t ret = shared_folders->GetAttributes(path_buffer, &attributes);
+	status_t ret = gSharedFolders->GetAttributes(path_buffer, &attributes);
 	free(path_buffer);
 
 	if (ret != B_OK)
@@ -152,11 +156,13 @@ vmwfs_access(fs_volume* volume, fs_vnode* vnode, int mode)
 
 	if (((mode & R_OK) == R_OK && !CAN_READ(attributes))
 		|| ((mode & W_OK) == W_OK && !CAN_WRITE(attributes))
-			|| ((mode & X_OK) == X_OK && !CAN_EXEC(attributes)))
+		|| ((mode & X_OK) == X_OK && !CAN_EXEC(attributes))) {
 		return B_PERMISSION_DENIED;
+	}
 
 	return B_OK;
 }
+
 
 status_t
 vmwfs_read_stat(fs_volume* volume, fs_vnode* vnode, struct stat* stat)
@@ -175,13 +181,13 @@ vmwfs_read_stat(fs_volume* volume, fs_vnode* vnode, struct stat* stat)
 
 	vmw_attributes attributes;
 	bool is_dir;
-	status_t ret = shared_folders->GetAttributes(path_buffer, &attributes, &is_dir);
+	status_t ret = gSharedFolders->GetAttributes(path_buffer, &attributes, &is_dir);
 	free(path_buffer);
 
 	if (ret != B_OK)
 		return ret;
 
-	stat->st_dev = device_id;
+	stat->st_dev = gDeviceId;
 	stat->st_ino = node->GetInode();
 
 	stat->st_mode = 0;
@@ -213,8 +219,9 @@ vmwfs_read_stat(fs_volume* volume, fs_vnode* vnode, struct stat* stat)
 	return B_NO_ERROR;
 }
 
-// TODO : This enum was taken from haiku/headers/build/os/drivers/fs_interface.h, find where it is defined
-// in the bundled headers.
+
+// TODO : This enum was taken from haiku/headers/build/os/drivers/fs_interface.h, find where it is
+// defined in the bundled headers.
 enum write_stat_mask {
 	FS_WRITE_STAT_MODE		= 0x0001,
 	FS_WRITE_STAT_UID		= 0x0002,
@@ -225,6 +232,7 @@ enum write_stat_mask {
 	FS_WRITE_STAT_CRTIME	= 0x0040,
 	FS_WRITE_STAT_CTIME		= 0x0080
 };
+
 
 status_t
 vmwfs_write_stat(fs_volume* volume, fs_vnode* vnode, const struct stat* stat, uint32 statMask)
@@ -263,7 +271,7 @@ vmwfs_write_stat(fs_volume* volume, fs_vnode* vnode, const struct stat* stat, ui
 	mask |= ((statMask & FS_WRITE_STAT_CRTIME) == FS_WRITE_STAT_CRTIME ? VMW_SET_CRTIME : 0);
 	mask |= ((statMask & FS_WRITE_STAT_CTIME) == FS_WRITE_STAT_CTIME ? VMW_SET_CTIME : 0);
 
-	status_t ret = shared_folders->SetAttributes(path_buffer, &attributes, mask);
+	status_t ret = gSharedFolders->SetAttributes(path_buffer, &attributes, mask);
 	free(path_buffer);
 
 	return ret;

@@ -1,17 +1,17 @@
-#include <stdlib.h>
-
 #include <fs_info.h>
 
 #include "vmwfs.h"
 
+extern fs_volume_ops volume_ops;
+extern fs_vnode_ops vnode_ops;
+
 VMWNode* root_node;
-
 int32 mount_count = 0;
+dev_t gDeviceId;
 
-dev_t device_id;
 
 status_t
-vmwfs_mount(fs_volume *_vol, const char *device, uint32 flags, const char *args, ino_t *_rootID)
+vmwfs_mount(fs_volume* _vol, const char* device, uint32 flags, const char* args, ino_t* _rootID)
 {
 	if (device != NULL)
 		return B_BAD_VALUE;
@@ -19,11 +19,11 @@ vmwfs_mount(fs_volume *_vol, const char *device, uint32 flags, const char *args,
 	if (atomic_add(&mount_count, 1))
 		return B_UNSUPPORTED;
 
-	shared_folders = new VMWSharedFolders(IO_SIZE);
-	if (shared_folders == NULL || shared_folders->InitCheck() != B_OK) {
+	gSharedFolders = new VMWSharedFolders(IO_SIZE);
+	if (gSharedFolders == NULL || gSharedFolders->InitCheck() != B_OK) {
 		atomic_add(&mount_count, -1);
-		delete shared_folders;
-		return (shared_folders == NULL ? B_NO_MEMORY : shared_folders->InitCheck());
+		delete gSharedFolders;
+		return gSharedFolders == NULL ? B_NO_MEMORY : gSharedFolders->InitCheck();
 	}
 
 	root_node = new VMWNode("", NULL);
@@ -38,26 +38,30 @@ vmwfs_mount(fs_volume *_vol, const char *device, uint32 flags, const char *args,
 
 	_vol->private_volume = root_node;
 	_vol->ops = &volume_ops;
-	device_id = _vol->id;
+	gDeviceId = _vol->id;
 
-	status_t ret = publish_vnode(_vol, *_rootID, (void*)_vol->private_volume,
-			&vnode_ops, S_IRUSR | S_IRGRP | S_IROTH | S_IWUSR | S_IWGRP | S_IWOTH | S_IFDIR | S_IXUSR | S_IXGRP | S_IXOTH, 0);
+	status_t ret = publish_vnode(_vol, *_rootID, (void*)_vol->private_volume, &vnode_ops,
+		S_IRUSR | S_IRGRP | S_IROTH | S_IWUSR | S_IWGRP | S_IWOTH | S_IFDIR | S_IXUSR | S_IXGRP
+			| S_IXOTH,
+		0);
 	if (ret != B_OK)
 		atomic_add(&mount_count, -1);
 
 	return ret;
 }
 
+
 status_t
 vmwfs_unmount(fs_volume* volume)
 {
 	delete root_node;
-	delete shared_folders;
+	delete gSharedFolders;
 
 	atomic_add(&mount_count, -1);
 
 	return B_OK;
 }
+
 
 status_t
 vmwfs_read_fs_info(fs_volume* volume, struct fs_info* info)
@@ -76,6 +80,7 @@ vmwfs_read_fs_info(fs_volume* volume, struct fs_info* info)
 	return B_OK;
 }
 
+
 status_t
 vmwfs_write_fs_info(fs_volume* volume, const struct fs_info* info, uint32 mask)
 {
@@ -83,8 +88,10 @@ vmwfs_write_fs_info(fs_volume* volume, const struct fs_info* info, uint32 mask)
 	return B_OK;
 }
 
+
 status_t
-vmwfs_get_vnode(fs_volume* volume, ino_t id, fs_vnode* vnode, int* _type, uint32* _flags, bool reenter)
+vmwfs_get_vnode(fs_volume* volume, ino_t id, fs_vnode* vnode, int* _type, uint32* _flags,
+	bool reenter)
 {
 	vnode->private_node = NULL;
 	vnode->ops = &vnode_ops;
@@ -109,10 +116,10 @@ vmwfs_get_vnode(fs_volume* volume, ino_t id, fs_vnode* vnode, int* _type, uint32
 
 	vmw_attributes attributes;
 	bool is_dir;
-	status_t ret = shared_folders->GetAttributes(path_buffer, &attributes, &is_dir);
-	
+	status_t ret = gSharedFolders->GetAttributes(path_buffer, &attributes, &is_dir);
+
 	free(path_buffer);
-	
+
 	if (ret != B_OK)
 		return ret;
 
