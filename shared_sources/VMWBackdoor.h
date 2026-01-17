@@ -17,9 +17,9 @@ public:
 		POINTER_GRAB_UNGRAB	= 0x0003,	// Grab (0x1)/Ungrab(0x2) are combined on newer versions.
 										// VMware-wide preference.
 		CLIP_BOARD_SHARING	= 0x0010,	// per-VM setting.
-		UNKOWN_SETTING_1	= 0x0200,
+		AUTO_RAISE_DISABLED	= 0x0200,
 		TIME_SYNC			= 0x0400,	// per-VM setting. Only one still used on open_vmware_tools code.
-		UNKOWN_SETTING_2	= 0x0800,
+		DISABLE_CURSOR_OPTS	= 0x0800,	// "toolbox/addons" should not show cursor options.
 	};
 
 	status_t	EnableMouseSharing();
