@@ -76,10 +76,10 @@ CheckCapabilities()
 	si->maxWidth = ReadReg(SVGA_REG_MAX_WIDTH);
 	si->maxHeight = ReadReg(SVGA_REG_MAX_HEIGHT);
 	TRACE("max resolution: %" B_PRId32 "x%" B_PRId32 "\n", si->maxWidth, si->maxHeight);
-	si->fbDma = (void *)ReadReg(SVGA_REG_FB_START);
+	si->fbDma = (void*)(uintptr_t)ReadReg(SVGA_REG_FB_START);
 	si->fbSize = ReadReg(SVGA_REG_VRAM_SIZE);
 	TRACE("frame buffer: %p, size %" B_PRId32 "\n", si->fbDma, si->fbSize);
-	si->fifoDma = (void *)ReadReg(SVGA_REG_MEM_START);
+	si->fifoDma = (void*)(uintptr_t)ReadReg(SVGA_REG_MEM_START);
 	si->fifoSize = ReadReg(SVGA_REG_MEM_SIZE) & ~3;
 	TRACE("fifo: %p, size %" B_PRId32 "\n", si->fifoDma, si->fifoSize);
 	si->capabilities = ReadReg(SVGA_REG_CAPABILITIES);

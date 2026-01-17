@@ -31,7 +31,7 @@ public:
 	virtual	filter_result		Filter(BMessage* msg, BList* outList);
 
 private:
-		void					_ScalePosition(int32& x, int32& y);
+		void					_ScalePosition(float& x, float& y);
 		VMWareSettingsWatcher*	fSettingsWatcher;
 };
 

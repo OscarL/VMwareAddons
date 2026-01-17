@@ -13,10 +13,11 @@
 
 #include "VMWAddOnsCleanup.h"
 
-#define _H(x) static_cast<int>((x)->Frame().Height())
-#define _W(x) static_cast<int>((x)->Frame().Width())
 
-#define SPACING 8
+#define _H(x) ((x)->Frame().Height())
+#define _W(x) ((x)->Frame().Width())
+
+#define SPACING 8.0f
 
 #define CLEANUP_SELECTION 'clSe'
 #define CANCEL_OPERATION 'ccOp'
@@ -30,7 +31,8 @@ VMWAddOnsSelectWindow::VMWAddOnsSelectWindow()
 {
 	fVolumeRoster = new BVolumeRoster();
 
-	int y = SPACING, w = static_cast<int>(Frame().Width()) - 2 * SPACING;
+	float y = SPACING;
+	float w = Frame().Width() - 2 * SPACING;
 
 	fDisksView = new BView(Bounds(), "disks view", B_FOLLOW_ALL, B_WILL_DRAW);
 	fDisksView->SetViewColor(ui_color(B_PANEL_BACKGROUND_COLOR));

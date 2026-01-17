@@ -78,7 +78,7 @@ VMWareMouseFilter::Filter(BMessage* message, BList* outList)
 		case B_MOUSE_DOWN:
 		case B_MOUSE_MOVED:
 		{
-			int32 x, y;
+			float x, y;
 			status_t ret = gBackdoor.GetCursorPosition(x, y);
 
 			if (ret == B_ERROR) {
@@ -98,12 +98,12 @@ VMWareMouseFilter::Filter(BMessage* message, BList* outList)
 
 			_ScalePosition(x, y);
 
-			if (x < 0 || y < 0) {
-				TRACE_ERROR("got invalid coordinates %ld, %ld\n", x, y);
+			if (x < 0.0 || y < 0.0) {
+				TRACE_ERROR("got invalid coordinates %f, %f\n", x, y);
 				break;
 			}
 
-			TRACE("setting position to %ld, %ld\n", x, y);
+			TRACE("setting position to %f, %f\n", x, y);
 			message->ReplacePoint("where", BPoint(x, y));
 			break;
 		}
@@ -114,12 +114,12 @@ VMWareMouseFilter::Filter(BMessage* message, BList* outList)
 
 
 void
-VMWareMouseFilter::_ScalePosition(int32& x, int32& y)
+VMWareMouseFilter::_ScalePosition(float& x, float& y)
 {
 	static BScreen screen;
 	BRect frame = screen.Frame();
-	x = (int32)(x * (frame.Width() / 65535) + 0.5);
-	y = (int32)(y * (frame.Height() / 65535) + 0.5);
+	x = x * (frame.Width() / 65535) + 0.5f;
+	y = y * (frame.Height() / 65535) + 0.5f;
 }
 
 

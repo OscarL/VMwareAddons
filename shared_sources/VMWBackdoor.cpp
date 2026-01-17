@@ -22,7 +22,7 @@ VMWBackdoor::EnableMouseSharing()
 
 	// Check the status
 	BackdoorCall(&regs, VMW_BACK_MOUSE_STATUS);
-	int16 status = HIGH_BITS(regs.eax);
+	int16 status = static_cast<int16>(HIGH_BITS(regs.eax));
 
 	if (status != 1)
 		return B_ERROR;
@@ -50,7 +50,7 @@ VMWBackdoor::DisableMouseSharing()
 
 	// Check the status
 	BackdoorCall(&regs, VMW_BACK_MOUSE_STATUS);
-	int16 status = HIGH_BITS(regs.eax);
+	int16 status = static_cast<int16>(HIGH_BITS(regs.eax));
 
 	if (status != -1)
 		return B_ERROR;
@@ -60,7 +60,7 @@ VMWBackdoor::DisableMouseSharing()
 
 
 status_t
-VMWBackdoor::GetCursorPosition(int32& x, int32& y)
+VMWBackdoor::GetCursorPosition(float& x, float& y)
 {
 	if (!InVMware())
 		return B_NOT_ALLOWED;
@@ -78,8 +78,8 @@ VMWBackdoor::GetCursorPosition(int32& x, int32& y)
 
 	regs_t regs;
 	BackdoorCall(&regs, VMW_BACK_MOUSE_DATA, 4);
-	x = regs.esi;
-	y = regs.ecx;
+	x = static_cast<float>(regs.esi);
+	y = static_cast<float>(regs.ecx);
 
 	return B_OK;
 }
@@ -107,7 +107,9 @@ VMWBackdoor::GetHostClipboard(char** text, size_t* length)
 	regs_t regs;
 	BackdoorCall(&regs, VMW_BACK_GET_CLIP_LENGTH);
 
-	uint32_t total, left;
+	size_t total;
+	size_t left;
+
 	total = left = regs.eax;
 
 	// Max length is 65436, text will be truncated to that size.
@@ -154,7 +156,9 @@ VMWBackdoor::SetHostClipboard(char* text, size_t length)
 
 	text[length] = '\0';
 
-	uint32_t total, left;
+	size_t total;
+	size_t left;
+
 	total = left = strlen(text);
 
 	regs_t regs;

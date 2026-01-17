@@ -25,7 +25,7 @@ public:
 	status_t	EnableMouseSharing();
 	status_t	DisableMouseSharing();
 
-	status_t	GetCursorPosition(int32& x, int32& y);
+	status_t	GetCursorPosition(float& x, float& y);
 	void		GetCursorStatus(uint16& status, uint16& toRead);
 
 	status_t	GetHostClipboard(char** text, size_t* length);

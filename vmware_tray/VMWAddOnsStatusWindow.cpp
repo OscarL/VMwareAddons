@@ -9,11 +9,13 @@
 #include <String.h>
 
 
-#define _H(x) static_cast<int>((x)->Frame().Height())
-#define _W(x) static_cast<int>((x)->Frame().Width())
+#define _H(x) ((x)->Frame().Height())
+#define _W(x) ((x)->Frame().Width())
 
 #define MB (1024 * 1024)
-#define SPACING 8
+
+#define SPACING 8.0f
+
 #define STOP_OPERATION 'stOp'
 
 
@@ -74,7 +76,7 @@ VMWAddOnsStatusWindow::MessageReceived(BMessage* message)
 			off_t size = sizeRead;
 
 			fProgressBar->Reset((BString("Cleaning up “") << name << "”" B_UTF8_ELLIPSIS).String());
-			fProgressBar->SetMaxValue(size);
+			fProgressBar->SetMaxValue(static_cast<float>(size));
 		}
 
 		case UPDATE_PROGRESS:

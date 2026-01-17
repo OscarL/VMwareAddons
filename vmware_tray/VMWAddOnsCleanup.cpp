@@ -133,7 +133,7 @@ VMWAddOnsCleanup::WriteToFile(BFile* file, char* buffer)
 		ssize_t written = file->Write(buffer, BUF_SIZE);
 
 		if (written < B_OK)
-			return written;
+			return static_cast<status_t>(written);
 
 		if (written < BUF_SIZE)
 			return B_DEVICE_FULL;
