@@ -30,10 +30,15 @@ TYPE= DRIVER
 #	if two source files with the same name (source.c or source.cpp)
 #	are included from different directories. Also note that spaces
 #	in folder names do not work well with this makefile.
-SRCS= dir_operations.cpp file_operations.cpp kernel_interface.cpp \
-	../shared_sources/VMWCoreBackdoor.cpp VMWNode.cpp \
-	VMWSharedFolders.cpp vnode_operations.cpp volume_operations.cpp
-
+SRCS= \
+	../shared_sources/VMWCoreBackdoor.cpp \
+	dir_operations.cpp \
+	file_operations.cpp \
+	kernel_interface.cpp \
+	VMWNode.cpp \
+	VMWSharedFolders.cpp \
+	vnode_operations.cpp \
+	volume_operations.cpp
 
 #	specify the resource files to use
 #	full path or a relative path to the resource file can be used.

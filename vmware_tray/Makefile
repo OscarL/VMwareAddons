@@ -30,9 +30,15 @@ TYPE= APP
 #	if two source files with the same name (source.c or source.cpp)
 #	are included from different directories. Also note that spaces
 #	in folder names do not work well with this makefile.
-SRCS= VMWAddOnsApp.cpp VMWAddOnsSelectWindow.cpp VMWAddOnsTray.cpp VMWAddOnsCleanup.cpp \
-	VMWAddOnsStatusWindow.cpp ../shared_sources/VMWAddOnsSettings.cpp \
-	../shared_sources/VMWCoreBackdoor.cpp ../shared_sources/VMWBackdoor.cpp
+SRCS= \
+	../shared_sources/VMWAddOnsSettings.cpp \
+	../shared_sources/VMWBackdoor.cpp \
+	../shared_sources/VMWCoreBackdoor.cpp \
+	VMWAddOnsApp.cpp \
+	VMWAddOnsCleanup.cpp \
+	VMWAddOnsSelectWindow.cpp \
+	VMWAddOnsStatusWindow.cpp \
+	VMWAddOnsTray.cpp
 
 #	specify the resource definition files to use
 #	full path or a relative path to the resource file can be used.
@@ -112,7 +118,7 @@ ifeq ($(RELEASE),1)
 endif
 
 #	specify additional compiler flags for all files
-COMPILER_FLAGS =
+COMPILER_FLAGS = -Werror -Wall -Wconversion -Wno-multichar
 
 #	specify additional linker flags
 LINKER_FLAGS = 

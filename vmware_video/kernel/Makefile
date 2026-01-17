@@ -30,8 +30,9 @@ TYPE= DRIVER
 #	if two source files with the same name (source.c or source.cpp)
 #	are included from different directories. Also note that spaces
 #	in folder names do not work well with this makefile.
-SRCS= driver.c device.c
-
+SRCS= \
+	device.c \
+	driver.c
 
 #	specify the resource files to use
 #	full path or a relative path to the resource file can be used.
@@ -106,7 +107,7 @@ ifeq ($(RELEASE),1)
 endif
 
 #	specify additional compiler flags for all files
-COMPILER_FLAGS = -fPIC
+COMPILER_FLAGS = -Wall -Werror
 
 #	specify additional linker flags
 LINKER_FLAGS = 

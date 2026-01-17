@@ -30,7 +30,8 @@ TYPE= SHARED
 #	if two source files with the same name (source.c or source.cpp)
 #	are included from different directories. Also note that spaces
 #	in folder names do not work well with this makefile.
-SRCS= Acceleration.c \
+SRCS= \
+	Acceleration.c \
 	Cursor.c \
 	EngineManagment.c \
 	Fifo.c \
@@ -115,7 +116,7 @@ ifeq ($(RELEASE),1)
 endif
 
 #	specify additional compiler flags for all files
-COMPILER_FLAGS = -Werror
+COMPILER_FLAGS = -Wall -Werror
 
 #	specify additional linker flags
 LINKER_FLAGS = 
