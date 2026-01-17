@@ -142,8 +142,7 @@ VMWSharedFolders::OpenFile(const char* path, int openMode, file_handle* handle)
 
 
 status_t
-VMWSharedFolders::ReadFile(file_handle handle, uint64 offset, void* readBuffer, uint32* readLength,
-	bool bufferIsUser)
+VMWSharedFolders::ReadFile(file_handle handle, uint64 offset, void* readBuffer, uint32* readLength)
 {
 	// Command string :
 	// 0) Magic value (6 bytes, in BuildCommand)
@@ -197,17 +196,9 @@ VMWSharedFolders::ReadFile(file_handle handle, uint64 offset, void* readBuffer, 
 
 	*readLength = returnedLength;
 
-	if (bufferIsUser) {
-		if (user_memcpy(readBuffer, fRPCBuffer + 14, *readLength) != B_OK) {
-			release_sem(fLock);
-			return B_BAD_ADDRESS;
-		}
-	} else {
-		if (readBuffer == NULL) {
-			release_sem(fLock);
-			return B_BAD_VALUE;
-		}
-		memcpy(readBuffer, fRPCBuffer + 14, *readLength);
+	if (user_memcpy(readBuffer, fRPCBuffer + 14, *readLength) != B_OK) {
+		release_sem(fLock);
+		return B_BAD_ADDRESS;
 	}
 
 	release_sem(fLock);
@@ -217,7 +208,7 @@ VMWSharedFolders::ReadFile(file_handle handle, uint64 offset, void* readBuffer, 
 
 status_t
 VMWSharedFolders::WriteFile(file_handle handle, uint64 offset, const void* writeBuffer,
-	uint32* writeLength, bool bufferIsUser)
+	uint32* writeLength)
 {
 	// Command string :
 	// 0) Magic value (6 bytes, in BuildCommand)
@@ -245,13 +236,9 @@ VMWSharedFolders::WriteFile(file_handle handle, uint64 offset, const void* write
 	SET_64(pos, offset);
 	SET_32(pos, *writeLength);
 
-	if (bufferIsUser) {
-		if (user_memcpy(fRPCBuffer + pos, writeBuffer, *writeLength) != B_OK) {
-			release_sem(fLock);
-			return B_BAD_ADDRESS;
-		}
-	} else {
-		memcpy(fRPCBuffer + pos, writeBuffer, *writeLength);
+	if (user_memcpy(fRPCBuffer + pos, writeBuffer, *writeLength) != B_OK) {
+		release_sem(fLock);
+		return B_BAD_ADDRESS;
 	}
 
 	pos += *writeLength;

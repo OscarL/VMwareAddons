@@ -49,8 +49,8 @@ public:
 
 	status_t		InitCheck() const { return fInitCheck; }
 	status_t		OpenFile(const char* path, int openMode, file_handle* handle);
-	status_t		ReadFile(file_handle handle, uint64 offset, void* readBuffer, uint32* readLength, bool bufferIsUser = false);
-	status_t		WriteFile(file_handle handle, uint64 offset, const void* writeBuffer, uint32* writeLength, bool bufferIsUser = false);
+	status_t		ReadFile(file_handle handle, uint64 offset, void* readBuffer, uint32* readLength);
+	status_t		WriteFile(file_handle handle, uint64 offset, const void* writeBuffer, uint32* writeLength);
 	status_t		CloseFile(file_handle handle);
 	status_t		OpenDir(const char* path, folder_handle* handle);
 	status_t		ReadDir(folder_handle handle, uint32 index, char* name, size_t maxLength);
